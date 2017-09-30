@@ -7,6 +7,23 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class Main {
+    
+    public static void processLatencies(int numRequestsSent, List<Long[]> requestAndResponseTimes){
+        Long[] latencies = new Long[requestAndResponseTimes.size()];
+        Arrays.sort(latencies);
+        Long totalResponseTimeForAllRequests = new Long(0);
+        for (Long time : latencies){
+            totalResponseTimeForAllRequests += time;
+        }
+        Long medianResponseTime = latencies[latencies.length/2];
+        Long meanResponseTime = totalResponseTimeForAllRequests / numRequestsSent;
+        Long ninetyFifthPercentile = latencies[((int) (latencies.length * 0.95))];
+        Long ninetyNinthPercentile = latencies[((int) (latencies.length * 0.99))];
+        System.out.println("Mean response time: " + meanResponseTime.toString() + " milliseconds");
+        System.out.println("Median response time: " + medianResponseTime.toString() + " milliseconds");
+        System.out.println("95th percentile response time: " + ninetyFifthPercentile.toString() + " milliseconds");
+        System.out.println("99th percentile response time: " + ninetyNinthPercentile.toString() + " milliseconds");
+    }
 
     public static void main(String[] args) {
         int numThreads = Integer.parseInt(args[0]);
@@ -34,26 +51,10 @@ public class Main {
         int numRequestsSent = httpRequester.getNumRequestsSent();
         int numResponsesSuccessful = httpRequester.getNumResponsesSuccessful();
         List<Long[]> requestAndResponseTimes = httpRequester.getRequestAndResponseTimes();
-        Long[] latencies = new Long[requestAndResponseTimes.size()];
-        for (int i = 0; i < requestAndResponseTimes.size(); i++){
-            latencies[i] = requestAndResponseTimes.get(i)[1];
-        }
-        Arrays.sort(latencies);
-        Long totalResponseTimeForAllRequests = new Long(0);
-        for (Long time : latencies){
-            totalResponseTimeForAllRequests += time;
-        }
-        Long medianResponseTime = latencies[latencies.length/2];
-        Long meanResponseTime = totalResponseTimeForAllRequests / numRequestsSent;
-        Long ninetyFifthPercentile = latencies[((int) (latencies.length * 0.95))];
-        Long ninetyNinthPercentile = latencies[((int) (latencies.length * 0.99))];
         System.out.println("Total number of requests sent: " + numRequestsSent);
         System.out.println("Total number of successful responses: " + numResponsesSuccessful);
         System.out.println("Test wall time: " + testWallTime.toString() + " milliseconds");
-        System.out.println("Mean response time: " + meanResponseTime.toString() + " milliseconds");
-        System.out.println("Median response time: " + medianResponseTime.toString() + " milliseconds");
-        System.out.println("95th percentile response time: " + ninetyFifthPercentile.toString() + " milliseconds");
-        System.out.println("99th percentile response time: " + ninetyNinthPercentile.toString() + " milliseconds");
+        processLatencies(numRequestsSent, requestAndResponseTimes);
     }
 
 }
