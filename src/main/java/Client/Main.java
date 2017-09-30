@@ -10,6 +10,9 @@ public class Main {
     
     public static void processLatencies(int numRequestsSent, List<Long[]> requestAndResponseTimes){
         Long[] latencies = new Long[requestAndResponseTimes.size()];
+        for (int i = 0; i < requestAndResponseTimes.size(); i++){
+            latencies[i] = requestAndResponseTimes.get(i)[1];
+        }
         Arrays.sort(latencies);
         Long totalResponseTimeForAllRequests = new Long(0);
         for (Long time : latencies){
@@ -54,7 +57,7 @@ public class Main {
         System.out.println("Total number of requests sent: " + numRequestsSent);
         System.out.println("Total number of successful responses: " + numResponsesSuccessful);
         System.out.println("Test wall time: " + testWallTime.toString() + " milliseconds");
-        processLatencies(numRequestsSent, requestAndResponseTimes);
+        Main.processLatencies(numRequestsSent, requestAndResponseTimes);
     }
 
 }
