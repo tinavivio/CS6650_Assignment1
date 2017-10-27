@@ -59,7 +59,7 @@ public class PostSkierDataClient {
             try {
                 countDownLatch.await();
             } catch (InterruptedException ex) {
-                System.out.println("Main thread interrupted!");
+                System.err.println("Main thread interrupted!");
             }
         
             System.out.println("Record Count = " + count);
@@ -70,7 +70,7 @@ public class PostSkierDataClient {
             try {
                 updateCountDownLatch.await();
             } catch (InterruptedException ex) {
-                System.out.println("Main thread interrupted!");
+                System.err.println("Main thread interrupted!");
             }
             
             System.out.println("Test complete....Time: " + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()));

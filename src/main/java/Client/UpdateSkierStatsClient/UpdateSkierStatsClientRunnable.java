@@ -31,10 +31,10 @@ public class UpdateSkierStatsClientRunnable implements Runnable {
             if (response.getStatus() == 201){
                 System.out.println("Successful response!");
             }else{
-                System.out.println("Unsuccessful response, status: " + response.getStatus());
+                System.err.println("Unsuccessful response, status: " + response.getStatus());
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
         this.countDownLatch.countDown();
         System.out.println("CountDownLatch count: " + this.countDownLatch.getCount());

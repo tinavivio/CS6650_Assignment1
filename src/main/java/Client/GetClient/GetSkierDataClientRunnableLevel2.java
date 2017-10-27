@@ -35,13 +35,13 @@ public class GetSkierDataClientRunnableLevel2 implements Runnable {
             if (response.getStatus() == 200){
                 responseSuccessful = new Long(1);
             }else{
-                System.out.println("Unsuccessful response, status: " + response.getStatus());
+                System.err.println("Unsuccessful response, status: " + response.getStatus());
                 responseSuccessful = new Long(0);
             }
             Long[] arr = {getStartTime, getResponseTime, responseSuccessful};
             this.metrics.put(new Long(this.skierId), arr);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             Long[] arr = {getStartTime, new Long(-1), new Long(0)};
             this.metrics.put(new Long(this.skierId), arr);
         }

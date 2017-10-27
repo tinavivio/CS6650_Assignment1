@@ -37,7 +37,7 @@ public class UpdateSkierStatsClient {
         try {
             this.countDownLatch.await();
         } catch (InterruptedException ex) {
-            System.out.println("Main thread interrupted!");
+            System.err.println("Main thread interrupted!");
         }
         System.out.println("Test complete....Time: " + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()));
         client.close();

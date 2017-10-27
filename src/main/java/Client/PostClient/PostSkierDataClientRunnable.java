@@ -42,13 +42,13 @@ public class PostSkierDataClientRunnable implements Runnable {
             if (response.getStatus() == 201){
                 responseSuccessful = new Long(1);
             }else{
-                System.out.println("Unsuccessful response, status: " + response.getStatus());
+                System.err.println("Unsuccessful response, status: " + response.getStatus());
                 responseSuccessful = new Long(0);
             }
             Long[] arr = {postStartTime, postResponseTime, responseSuccessful};
             this.metrics.put(new LiftRide(Integer.parseInt(this.resortId), Integer.parseInt(this.dayNumber), Integer.parseInt(this.skierId), Integer.parseInt(this.liftNumber), Integer.parseInt(this.time)), arr);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             Long[] arr = {postStartTime, new Long(-1), new Long(0)};
             this.metrics.put(new LiftRide(Integer.parseInt(this.resortId), Integer.parseInt(this.dayNumber), Integer.parseInt(this.skierId), Integer.parseInt(this.liftNumber), Integer.parseInt(this.time)), arr);          
         }

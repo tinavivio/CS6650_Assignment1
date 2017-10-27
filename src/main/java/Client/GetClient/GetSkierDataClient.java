@@ -30,7 +30,7 @@ public class GetSkierDataClient {
         try {
             countDownLatch.await();
         } catch (InterruptedException ex) {
-            System.out.println("Main thread interrupted!");
+            System.err.println("Main thread interrupted!");
         }
         System.out.println("All threads complete....Time: " + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()));
         client.close();
