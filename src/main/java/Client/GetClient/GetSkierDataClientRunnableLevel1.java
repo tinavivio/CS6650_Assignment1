@@ -27,7 +27,12 @@ public class GetSkierDataClientRunnableLevel1 implements Runnable {
     @Override
     public void run() {
         
+        // Instantiate a new Executor with a fixed size thread pool to process this thread's work
+        // in a concurrent manner.
         Executor exec = Executors.newFixedThreadPool(3);
+        // For each skier ID in the range that this thread is responsible for processing, 
+        // submit a new task to the Executor with the skier ID.
+        // Also pass each runnable task the ConcurrentHashMap, CountDownLatch, and JerseyClient.
         for (int i = this.beginIndex; i <= this.endIndex; i++){
             exec.execute(new GetSkierDataClientRunnableLevel2(i, dayNumber, this.client, this.metrics, this.countDownLatch));
         }       

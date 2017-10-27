@@ -26,6 +26,7 @@ public class UpdateSkierStatsClientRunnable implements Runnable {
     public void run() {
         System.out.println("Thread " + Thread.currentThread().toString() + " updating day " + Integer.toString(this.dayNumber) + " stats for skier : " + Integer.toString(this.skierId));
         try{
+            // Send a POST request to the server with a skier's daily statistics.
             Response response = this.client.postNewSkiDayStats(Integer.toString(this.skierId), Integer.toString(this.dayNumber), Integer.toString(this.numRides), Integer.toString(this.totalVertical));
             response.close();
             if (response.getStatus() == 201){
@@ -36,6 +37,7 @@ public class UpdateSkierStatsClientRunnable implements Runnable {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
+        // Count down the CountDownLatch.
         this.countDownLatch.countDown();
         System.out.println("CountDownLatch count: " + this.countDownLatch.getCount());
     }

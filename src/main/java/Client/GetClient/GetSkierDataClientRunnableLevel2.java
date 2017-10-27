@@ -27,6 +27,7 @@ public class GetSkierDataClientRunnableLevel2 implements Runnable {
         System.out.println("Thread " + Thread.currentThread().toString() + " getting day " + Integer.toString(this.dayNumber) + " ski stats for skier " + Integer.toString(this.skierId));
         Long getStartTime = System.currentTimeMillis();
         try{
+            // Send a GET request to the server to retrieve the statistics for a given skier ID.
             Response response = this.client.getSkiDayStatsBySkierIdAndDay(Response.class, Integer.toString(this.skierId), Integer.toString(this.dayNumber));
             Long getEndTime = System.currentTimeMillis();
             response.close();
@@ -39,6 +40,8 @@ public class GetSkierDataClientRunnableLevel2 implements Runnable {
                 responseSuccessful = new Long(0);
             }
             Long[] arr = {getStartTime, getResponseTime, responseSuccessful};
+            // Add an entry to the ConcurrentHashMap which contains the request sent time,
+            // response time, and a 1 if the response was successful or a 0 if the response was unsuccessful.
             this.metrics.put(new Long(this.skierId), arr);
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -46,6 +49,7 @@ public class GetSkierDataClientRunnableLevel2 implements Runnable {
             this.metrics.put(new Long(this.skierId), arr);
         }
         
+        // Count down the CountDownLatch.
         this.countDownLatch.countDown();
         System.out.println("CountDownLatch count: " + this.countDownLatch.getCount());
             

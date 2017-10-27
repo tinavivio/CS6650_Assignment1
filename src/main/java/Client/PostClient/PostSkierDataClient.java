@@ -28,12 +28,18 @@ public class PostSkierDataClient {
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ",";
+        // Instantiate a new Executor with a fixed size thread pool which will manage submission of runnable tasks.
         Executor exec = Executors.newFixedThreadPool(200);
         int count = -1;
+        // Instantiate a ConcurrentHashMap to track response times. 
+        // Each key is a LiftRide, each key is an array of Long to track request sent time, response time,
+        // and a boolean representing whether the response was successful or not.
         ConcurrentMap<LiftRide, Long[]> metrics = new ConcurrentHashMap<>();
+        // Instantiate a CountDownLatch with an initial count of 800,000 (based on the number of records in the CSV file).
         CountDownLatch countDownLatch = new CountDownLatch(800000);
         Long testStartTime = System.currentTimeMillis();
         System.out.println("Client starting....Time: " + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()));
+        // Instantiate a new JerseyClient which has methods that are able to send requests to the server.
         JerseyClient client = new JerseyClient(ipAddress, portNumber);
         
         try {
@@ -43,6 +49,9 @@ public class PostSkierDataClient {
             while ((line = br.readLine()) != null) {
                 
                 if (count >= 0) {
+                    
+                    // Split each line at the commas, and submit a new task to the Executor with the details from the record.
+                    // Also pass each runnable task the ConcurrentHashMap, CountDownLatch, and JerseyClient.
                     
                     String[] RFIDLiftData = line.split(cvsSplitBy);
                     
@@ -56,6 +65,9 @@ public class PostSkierDataClient {
 
             }
             
+            // Wait for the CountDownLatch to reach zero before continuing in the program.
+            // This implies that all of the 800,000 records have been persisted to the database
+            // (unless responses were unsuccessful) and it is safe to now calculate statistics for each skier.
             try {
                 countDownLatch.await();
             } catch (InterruptedException ex) {
@@ -64,9 +76,15 @@ public class PostSkierDataClient {
         
             System.out.println("Record Count = " + count);
             
+            // Instantiate a new CountDownLatch with an initial count of 40,000 (based on the number of skiers).
             CountDownLatch updateCountDownLatch = new CountDownLatch(40000);
+            // Instantiate a new UpdateSkierStatsClient and pass it the CountDownLatch and JerseyClient.
             UpdateSkierStatsClient updateClient = new UpdateSkierStatsClient(dayNumber, updateCountDownLatch, client);
+            // Call the UpdateSkierStatsClient's method that peforms the updates to the database.
             updateClient.updateSkierStats();
+            // Wait for the CountDownLatch to reach zero before continuing in the program.
+            // This implies that all of the 40,000 skiers' statistics have been updated and persisted to the database
+            // (unless responses were unsuccessful).
             try {
                 updateCountDownLatch.await();
             } catch (InterruptedException ex) {
@@ -74,6 +92,7 @@ public class PostSkierDataClient {
             }
             
             System.out.println("Test complete....Time: " + new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()));
+            // Close the JerseyClient and process the response time information that has been collected in the ConcurrentHashMap.
             client.close();
             Long testEndTime = System.currentTimeMillis();
             Long testWallTime = testEndTime - testStartTime;

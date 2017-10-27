@@ -21,14 +21,25 @@ public class Processor {
     public void processLatencies(){
         int numRequestsSent = this.requestAndResponseTimes.size();
         System.out.println("Total number of requests sent: " + numRequestsSent);
+        // Instantiate a new List<Long> to store just the response times.
+        // This is so that this list can be sorted separately to get median and percentiles easily.
         List<Long> latencies = new ArrayList<>();
         Long numResponsesSuccessful = new Long(0);
+        // Instantiate a new HashMap to track data needed to calculated average response times per second.
+        // After processing, this map will have a key for each second of the total test wall time.
+        // The value is an array of Long that contains the number of requests sent in that second,
+        // and the sum of response times for each request sent in that second.
         Map<Long, Long[]> perSecondStats = new HashMap<>();
         Iterator<Long[]> iterator = this.requestAndResponseTimes.iterator();
         while (iterator.hasNext()){
             Long[] arr = iterator.next();
             if (arr[1] != -1){
+                // Add the response time to the list of response times (if the response was successful).
                 latencies.add(arr[1]);
+                // Determine which second the request was sent in based on the test start time,
+                // and check if the hash map already contains that key.
+                // If the hash map already contains the key, update the value.
+                // Otherwise add the new key and value to the hash map.
                 Long key = ((arr[0] - testStartTime) / 1000) + 1;
                 if(perSecondStats.containsKey(key)){
                     Long[] oldValue = perSecondStats.get(key);
@@ -39,11 +50,14 @@ public class Processor {
                     perSecondStats.put(key, newValue);
                 }
             }
+            // Update the number of successful responses.
             numResponsesSuccessful += arr[2];
         }
         System.out.println("Total number of successful responses: " + numResponsesSuccessful.toString());
+        // Sort the list of response times so that the median and percentiles can be obtained.
         Long[] latenciesArray = latencies.toArray(new Long[0]);
         Arrays.sort(latenciesArray);
+        // Calculate the sum of all response times so that mean response time can be obtained.
         Long totalResponseTimeForAllRequests = new Long(0);
         for (Long time : latenciesArray){
             totalResponseTimeForAllRequests += time;
@@ -56,6 +70,7 @@ public class Processor {
         System.out.println("Median response time: " + medianResponseTime.toString() + " milliseconds");
         System.out.println("95th percentile response time: " + ninetyFifthPercentile.toString() + " milliseconds");
         System.out.println("99th percentile response time: " + ninetyNinthPercentile.toString() + " milliseconds");
+        // Instantiate a new XYLineChart and pass it the per second stats. Delegate the charting to this module.
         XYLineChart chart = new XYLineChart(perSecondStats);
         chart.chartLatencies();
     }

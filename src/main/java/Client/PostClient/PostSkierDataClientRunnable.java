@@ -34,6 +34,7 @@ public class PostSkierDataClientRunnable implements Runnable {
         System.out.println("Thread " + Thread.currentThread().toString() + " posting the following data: " + this.toString());
         Long postStartTime = System.currentTimeMillis();
         try{
+            // Send a POST request to the server with details about a single lift ride.
             Response response = this.client.postNewLiftRide(this.resortId, this.dayNumber, this.time, this.skierId, this.liftNumber);
             Long postEndTime = System.currentTimeMillis();
             response.close();
@@ -46,6 +47,8 @@ public class PostSkierDataClientRunnable implements Runnable {
                 responseSuccessful = new Long(0);
             }
             Long[] arr = {postStartTime, postResponseTime, responseSuccessful};
+            // Add an entry to the ConcurrentHashMap which contains the request sent time,
+            // response time, and a 1 if the response was successful or a 0 if the response was unsuccessful.
             this.metrics.put(new LiftRide(Integer.parseInt(this.resortId), Integer.parseInt(this.dayNumber), Integer.parseInt(this.skierId), Integer.parseInt(this.liftNumber), Integer.parseInt(this.time)), arr);
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -53,6 +56,7 @@ public class PostSkierDataClientRunnable implements Runnable {
             this.metrics.put(new LiftRide(Integer.parseInt(this.resortId), Integer.parseInt(this.dayNumber), Integer.parseInt(this.skierId), Integer.parseInt(this.liftNumber), Integer.parseInt(this.time)), arr);          
         }
         
+        // Count down the CountDownLatch.
         this.countDownLatch.countDown();
         System.out.println("CountDownLatch count: " + this.countDownLatch.getCount());
         
