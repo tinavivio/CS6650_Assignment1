@@ -24,7 +24,7 @@ public class PostSkierDataClient {
         String ipAddress = args[0];
         String portNumber = args[1];
         int dayNumber = Integer.parseInt(args[2]);
-        String csvFile = args[3]/*"/Users/tinavivio/NetBeansProjects/Assignment1_Vivio/BSDSAssignment2Day1.csv"*/;
+        String csvFile = args[3];
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ",";
