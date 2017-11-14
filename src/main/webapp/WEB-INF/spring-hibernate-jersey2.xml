@@ -47,8 +47,8 @@
 	<property name="user" value="tinavivio" />
 	<property name="password" value="rahul2016" />
 	<!-- pool sizing -->
-	<property name="minPoolSize" value="75" />
-	<property name="maxPoolSize" value="50" />
+	<property name="minPoolSize" value="20" />
+	<property name="maxPoolSize" value="75" />
 	<property name="maxStatements" value="500" />
     </bean>
     
