@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import javax.ws.rs.core.Response;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class UpdateSkierStatsClient {
     
@@ -37,8 +38,8 @@ public class UpdateSkierStatsClient {
         // For each entry in the returned JSON array, submit a new task to the Executor with the details from the record.
         // Also pass each runnable task the CountDownLatch and JerseyClient.
         for (int i = 0; i < responseAsJson.length(); i++) {
-            JSONArray arr = (JSONArray) responseAsJson.get(i);
-            exec.execute(new UpdateSkierStatsClientRunnable((Integer) arr.get(0), this.dayNumber, (Integer) arr.get(1), (Integer) arr.get(2), this.client, this.countDownLatch));
+            JSONObject obj = (JSONObject) responseAsJson.get(i);
+            exec.execute(new UpdateSkierStatsClientRunnable((Integer) obj.get("skierId"), this.dayNumber, (Integer) obj.get("numRides"), (Integer) obj.get("totalVertical"), this.client, this.countDownLatch));
         }  
         try {
             this.countDownLatch.await();

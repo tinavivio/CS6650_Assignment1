@@ -26,8 +26,14 @@ public class LiftRideService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_PLAIN)
     public Response postnewLiftRide(@PathParam("resortId") int resortId, @PathParam("dayNumber") int dayNumber, @PathParam("time") int time, @PathParam("skierId") int skierId, @PathParam("liftNumber") int liftNumber) {
+        Long requestStartTime = System.currentTimeMillis();
         LiftRide newLiftRide = new LiftRide(resortId, dayNumber, skierId, liftNumber, time);
+        Long dbRequestStartTime = System.currentTimeMillis();
         long newLiftRideId = this.liftRideDAO.insertNewLiftRide(newLiftRide);
+        Long dbResponseEndTime = System.currentTimeMillis();
+        Long dbResponseTime = dbResponseEndTime - dbRequestStartTime;
+        Long responseEndTime = System.currentTimeMillis();
+        Long responseTime = responseEndTime - requestStartTime;
         return Response.status(201).entity(newLiftRideId).build();
     }  
     

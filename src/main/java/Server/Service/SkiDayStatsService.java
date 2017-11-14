@@ -10,9 +10,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Path("/skiers")
@@ -26,10 +27,17 @@ public class SkiDayStatsService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSkiDayStatsBySkierIdAndDay(@PathParam("skierId") int skierId, @PathParam("dayNumber") int dayNumber) {
+        Long requestStartTime = System.currentTimeMillis();
         SkiDayStats skierStats = this.skiDayStatsDAO.getSkiDayStatsBySkierIdAndDay(skierId, dayNumber);
+        Long dbResponseEndTime = System.currentTimeMillis();
+        Long dbResponseTime = dbResponseEndTime - requestStartTime;
         if(skierStats != null){
+            Long successfulResponseEndTime = System.currentTimeMillis();
+            Long successfulResponseTime = successfulResponseEndTime - requestStartTime;
             return Response.status(200).entity(skierStats).build();
         }else{
+            Long failedResponseEndTime = System.currentTimeMillis();
+            Long failedResponseTime = failedResponseEndTime - requestStartTime;
             return Response.status(404).build();
         }
     }  
@@ -57,11 +65,19 @@ public class SkiDayStatsService {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_PLAIN)
     public Response postnewSkiDayStats(@PathParam("skierId") int skierId, @PathParam("dayNumber") int dayNumber, @PathParam("numRides") int numRides, @PathParam("totalVertical") int totalVertical) {
+        Long requestStartTime = System.currentTimeMillis();
         SkiDayStats newStats = new SkiDayStats(skierId, dayNumber, numRides, totalVertical);
+        Long dbRequestStartTime = System.currentTimeMillis();
         long newStatsId = this.skiDayStatsDAO.insertNewSkiDayStats(newStats);
+        Long dbResponseEndTime = System.currentTimeMillis();
+        Long dbResponseTime = dbResponseEndTime - dbRequestStartTime;
         if(newStatsId != -1){
+            Long successfulResponseEndTime = System.currentTimeMillis();
+            Long successfulResponseTime = successfulResponseEndTime - requestStartTime;
             return Response.status(201).entity(newStatsId).build();
         }else{
+            Long failedResponseEndTime = System.currentTimeMillis();
+            Long failedResponseTime = failedResponseEndTime - requestStartTime;
             return Response.status(409).build();
         }
     }
@@ -72,8 +88,17 @@ public class SkiDayStatsService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllSkiDayStatsByDay(@PathParam("dayNumber") int dayNumber) {
         List<Object[]> allStats = this.skiDayStatsDAO.getAllSkiDayStatsByDay(dayNumber);
-        GenericEntity entity = new GenericEntity<List<Object[]>>(allStats) {};
-        return Response.ok(entity).build();
+        JSONArray jsonArr = new JSONArray();
+        int index = 0;
+        for (Object[] arr : allStats) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("skierId", arr[0]);
+            jsonObject.put("numRides", arr[1]);
+            jsonObject.put("totalVertical", arr[2]);
+            jsonArr.put(index, jsonObject);
+            index++;
+        }
+        return Response.ok(jsonArr.toString()).build();
     }
     
     @GET
