@@ -10,10 +10,10 @@ public class GetSkierDataClientRunnableLevel2 implements Runnable {
     private final int skierId;
     private final int dayNumber;
     private final JerseyClient client;
-    private final ConcurrentMap<Long, Long[]> metrics;
+    private final ConcurrentMap<String, Long[]> metrics;
     private final CountDownLatch countDownLatch;
 
-    public GetSkierDataClientRunnableLevel2(int skierId, int dayNumber, JerseyClient client, ConcurrentMap<Long, Long[]> metrics, CountDownLatch countDownLatch) {
+    public GetSkierDataClientRunnableLevel2(int skierId, int dayNumber, JerseyClient client, ConcurrentMap<String, Long[]> metrics, CountDownLatch countDownLatch) {
         this.skierId = skierId;
         this.dayNumber = dayNumber;
         this.client = client;
@@ -42,11 +42,11 @@ public class GetSkierDataClientRunnableLevel2 implements Runnable {
             Long[] arr = {getStartTime, getResponseTime, responseSuccessful};
             // Add an entry to the ConcurrentHashMap which contains the request sent time,
             // response time, and a 1 if the response was successful or a 0 if the response was unsuccessful.
-            this.metrics.put(new Long(this.skierId), arr);
+            this.metrics.put(Integer.toString(skierId) + " " + Integer.toString(this.dayNumber), arr);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             Long[] arr = {getStartTime, new Long(-1), new Long(0)};
-            this.metrics.put(new Long(this.skierId), arr);
+            this.metrics.put(Integer.toString(skierId) + " " + Integer.toString(this.dayNumber), arr);
         }
         
         // Count down the CountDownLatch.

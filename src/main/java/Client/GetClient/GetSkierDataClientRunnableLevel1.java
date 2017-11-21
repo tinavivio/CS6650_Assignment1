@@ -12,10 +12,10 @@ public class GetSkierDataClientRunnableLevel1 implements Runnable {
     private final int beginIndex;
     private final int endIndex;
     private final JerseyClient client;
-    private final ConcurrentMap<Long, Long[]> metrics;
+    private final ConcurrentMap<String, Long[]> metrics;
     private final CountDownLatch countDownLatch;
 
-    public GetSkierDataClientRunnableLevel1(int dayNumber, int beginIndex, int endIndex, JerseyClient client, ConcurrentMap<Long, Long[]> metrics, CountDownLatch countDownLatch) {
+    public GetSkierDataClientRunnableLevel1(int dayNumber, int beginIndex, int endIndex, JerseyClient client, ConcurrentMap<String, Long[]> metrics, CountDownLatch countDownLatch) {
         this.dayNumber = dayNumber;
         this.beginIndex = beginIndex;
         this.endIndex = endIndex;

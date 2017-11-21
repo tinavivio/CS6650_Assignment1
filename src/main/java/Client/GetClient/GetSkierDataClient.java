@@ -1,7 +1,7 @@
 package Client.GetClient;
 
 import Client.JerseyClient;
-import Client.Processor;
+import Client.ClientMetricsProcessor;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -11,15 +11,40 @@ import java.util.concurrent.CountDownLatch;
 
 public class GetSkierDataClient {
     
+    private final JerseyClient client;
+    private final int dayNumber;
+    private final ConcurrentMap<String, Long[]> metrics;
+    private final CountDownLatch countDownLatch;
+
+    public GetSkierDataClient(JerseyClient client, int dayNumber, ConcurrentMap<String, Long[]> metrics, CountDownLatch countDownLatch) {
+        this.client = client;
+        this.dayNumber = dayNumber;
+        this.metrics = metrics;
+        this.countDownLatch = countDownLatch;
+    }
+    
+    public void runClient() {
+        
+        // Partition the 10,000 skier IDs into 100 chunks of 100 IDs each,
+        // and start a new thread responsible for processing each chunk.
+        // Pass each thread the range of IDs it is responsible for, the ConcurrentHashMap, CountDownLatch, and JerseyClient.
+        for (int i = 1; i <= 100; i++) {
+            int beginIndex = (100 * i) - 99;
+            int endIndex = 100 * i;
+            (new Thread(new GetSkierDataClientRunnableLevel1(this.dayNumber, beginIndex, endIndex, this.client, this.metrics, this.countDownLatch))).start();
+        } 
+
+    }
+    
     public static void main(String[] args) {
         
         String ipAddress = args[0];
         String portNumber = args[1];
         int dayNumber = Integer.parseInt(args[2]);
         // Instantiate a ConcurrentHashMap to track response times. 
-        // Each key is a skier ID, each key is an array of Long to track request sent time, response time,
+        // Each key is a unique string, each value is an array of Long to track request sent time, response time,
         // and a boolean representing whether the response was successful or not.
-        ConcurrentMap<Long, Long[]> metrics = new ConcurrentHashMap<>();
+        ConcurrentMap<String, Long[]> metrics = new ConcurrentHashMap<>();
         // Instantiate a CountDownLatch with an initial count of 40,000 (based on the number of skiers).
         CountDownLatch countDownLatch = new CountDownLatch(40000);
         Long testStartTime = System.currentTimeMillis();
@@ -50,8 +75,9 @@ public class GetSkierDataClient {
         Long testWallTime = testEndTime - testStartTime;
         System.out.println("Test wall time: " + testWallTime.toString() + " milliseconds");
         Collection<Long[]> requestAndResponseTimes = metrics.values();
-        Processor processor = new Processor(testStartTime, requestAndResponseTimes);
+        ClientMetricsProcessor processor = new ClientMetricsProcessor(testWallTime, testStartTime, requestAndResponseTimes);
         processor.processLatencies(); 
 
     }
+    
 }

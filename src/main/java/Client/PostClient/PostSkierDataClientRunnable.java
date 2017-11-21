@@ -1,7 +1,6 @@
 package Client.PostClient;
 
 import Client.JerseyClient;
-import Server.Model.LiftRide;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import javax.ws.rs.core.Response;
@@ -14,10 +13,10 @@ public class PostSkierDataClientRunnable implements Runnable {
     private final String skierId;
     private final String liftNumber;
     private final JerseyClient client;
-    private final ConcurrentMap<LiftRide, Long[]> metrics;
+    private final ConcurrentMap<String, Long[]> metrics;
     private final CountDownLatch countDownLatch;
  
-    public PostSkierDataClientRunnable(String resortId, String dayNumber, String time, String skierId, String liftNumber, JerseyClient client, ConcurrentMap<LiftRide, Long[]> metrics, CountDownLatch countDownLatch) {
+    public PostSkierDataClientRunnable(String resortId, String dayNumber, String time, String skierId, String liftNumber, JerseyClient client, ConcurrentMap<String, Long[]> metrics, CountDownLatch countDownLatch) {
         this.resortId = resortId;
         this.dayNumber = dayNumber;
         this.time = time;
@@ -37,6 +36,7 @@ public class PostSkierDataClientRunnable implements Runnable {
             // Send a POST request to the server with details about a single lift ride.
             Response response = this.client.postNewLiftRide(this.resortId, this.dayNumber, this.time, this.skierId, this.liftNumber);
             Long postEndTime = System.currentTimeMillis();
+            Long newLiftRideId = Long.parseLong(response.readEntity(String.class));
             response.close();
             Long postResponseTime = postEndTime - postStartTime;
             Long responseSuccessful;
@@ -49,11 +49,11 @@ public class PostSkierDataClientRunnable implements Runnable {
             Long[] arr = {postStartTime, postResponseTime, responseSuccessful};
             // Add an entry to the ConcurrentHashMap which contains the request sent time,
             // response time, and a 1 if the response was successful or a 0 if the response was unsuccessful.
-            this.metrics.put(new LiftRide(Integer.parseInt(this.resortId), Integer.parseInt(this.dayNumber), Integer.parseInt(this.skierId), Integer.parseInt(this.liftNumber), Integer.parseInt(this.time)), arr);
+            this.metrics.put(newLiftRideId.toString(), arr);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             Long[] arr = {postStartTime, new Long(-1), new Long(0)};
-            this.metrics.put(new LiftRide(Integer.parseInt(this.resortId), Integer.parseInt(this.dayNumber), Integer.parseInt(this.skierId), Integer.parseInt(this.liftNumber), Integer.parseInt(this.time)), arr);          
+            this.metrics.put(this.dayNumber + " " + this.skierId + " " + this.liftNumber + " " + this.time, arr);          
         }
         
         // Count down the CountDownLatch.
