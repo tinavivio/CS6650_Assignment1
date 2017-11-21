@@ -3,9 +3,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:context="http://www.springframework.org/schema/context"
     xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:task="http://www.springframework.org/schema/task"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
-    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+                        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
     
     <!-- to activate annotations in beans already registered in the application context -->
     <context:annotation-config />
@@ -15,6 +17,12 @@
     
     <!-- turn on spring transaction annotation -->
     <tx:annotation-driven transaction-manager="transactionManager" />
+    
+    <!--
+    <task:annotation-driven scheduler="scheduler"/>
+    <task:scheduler id="scheduler" pool-size="50"/>
+    
+    <bean id="scheduledTask" class="Server.ScheduledTask"></bean> -->
     
     <!-- Transaction Manager -->
     <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
@@ -29,6 +37,7 @@
                 <value>Server.Model.Lift</value>
                 <value>Server.Model.LiftRide</value>
                 <value>Server.Model.SkiDayStats</value>
+                <value>Server.Model.Metrics</value>
             </list>
         </property>
         <property name="hibernateProperties">
@@ -36,6 +45,7 @@
                 <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
                 <prop key="hibernate.hbm2ddl.auto">update</prop>
                 <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.jdbc.batch_size">10</prop>
             </props>
         </property>
     </bean>

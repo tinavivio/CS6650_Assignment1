@@ -14,12 +14,18 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.util.EC2MetadataUtils;
 
 @Path("/liftRides")
 public class LiftRideService {
     
     @Autowired
     private LiftRideDAO liftRideDAO;
+    
+    private static final String QUEUEURL = "https://sqs.us-west-2.amazonaws.com/689430559734/DistributedSystems";
     
     @POST
     @Path("/load/{resortId},{dayNumber},{time},{skierId},{liftNumber}")  
@@ -34,6 +40,13 @@ public class LiftRideService {
         Long dbResponseTime = dbResponseEndTime - dbRequestStartTime;
         Long responseEndTime = System.currentTimeMillis();
         Long responseTime = responseEndTime - requestStartTime;
+        String instanceId = EC2MetadataUtils.getInstanceId();
+        AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+        SendMessageRequest send_msg_request = new SendMessageRequest()
+                .withQueueUrl(QUEUEURL)
+                .withMessageBody(instanceId + " " + dbRequestStartTime.toString() + " " + dbResponseTime.toString() + " "
+                        + requestStartTime.toString() + " " + responseTime.toString() + " 201");
+        sqs.sendMessage(send_msg_request);
         return Response.status(201).entity(newLiftRideId).build();
     }  
     

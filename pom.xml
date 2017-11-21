@@ -68,11 +68,23 @@
                 <version>${jersey.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
+            </dependency>  
         </dependencies>
     </dependencyManagement>
     
     <dependencies>
+        
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-core</artifactId>
+            <version>1.11.213</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-sqs</artifactId>
+            <version>1.11.213</version>
+        </dependency>
         
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>

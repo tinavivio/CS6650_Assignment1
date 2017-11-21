@@ -13,14 +13,16 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-public class XYLineChart extends JFrame {
+public class ServerXYLineChart extends JFrame {
     
-    private final Map<Long, Long[]> requestAndResponseTimes;
+    private final Map<Long, Long[]> databaseRequestAndResponseTimes;
+    private final Map<Long, Long[]> serverRequestAndResponseTimes;
  
-    public XYLineChart(Map<Long, Long[]> requestAndResponseTimes) {
-        this.requestAndResponseTimes = requestAndResponseTimes;
+    public ServerXYLineChart(Map<Long, Long[]> databaseRequestAndResponseTimes, Map<Long, Long[]> serverRequestAndResponseTimes) {
+        this.databaseRequestAndResponseTimes = databaseRequestAndResponseTimes;
+        this.serverRequestAndResponseTimes = serverRequestAndResponseTimes;
     }
-
+    
     private void initUI() {
 
         XYDataset dataset = createDataset();
@@ -37,16 +39,25 @@ public class XYLineChart extends JFrame {
     
     private XYDataset createDataset() {
 
-        XYSeries series = new XYSeries("Per Second Averages");
-        for (Map.Entry<Long, Long[]> entry : this.requestAndResponseTimes.entrySet()) {
+        XYSeries databaseSeries = new XYSeries("Database Per Second Averages");
+        for (Map.Entry<Long, Long[]> entry : this.databaseRequestAndResponseTimes.entrySet()) {
             Long key = entry.getKey();
             Long[] value = entry.getValue();
             Long avg = value[1] / value[0];
-            series.add(key, avg);
+            databaseSeries.add(key, avg);
+        }
+        
+        XYSeries serverSeries = new XYSeries("Server Per Second Averages");
+        for (Map.Entry<Long, Long[]> entry : this.serverRequestAndResponseTimes.entrySet()) {
+            Long key = entry.getKey();
+            Long[] value = entry.getValue();
+            Long avg = value[1] / value[0];
+            serverSeries.add(key, avg);
         }
 
         XYSeriesCollection dataset = new XYSeriesCollection();
-        dataset.addSeries(series);
+        dataset.addSeries(databaseSeries);
+        dataset.addSeries(serverSeries);
 
         return dataset;
     }
@@ -70,7 +81,7 @@ public class XYLineChart extends JFrame {
     
     public void chartLatencies(){
         SwingUtilities.invokeLater(() -> {
-            XYLineChart chart = new XYLineChart(this.requestAndResponseTimes);
+            ServerXYLineChart chart = new ServerXYLineChart(this.databaseRequestAndResponseTimes, this.serverRequestAndResponseTimes);
             chart.setVisible(true);
             chart.initUI();
         });

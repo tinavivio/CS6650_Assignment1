@@ -81,7 +81,7 @@ public class SkiDayStats implements Serializable {
 
     @Override
     public String toString() {
-        return "SkiDayStats{" + "statsId=" + this.statsId + ", skierId=" + this.skierId + ", dayNumber=" + this.dayNumber + ", numRides=" + this.numRides + ", totalVertical=" + this.totalVertical + '}';
+        return "SkiDayStats{" + "statsId=" + this.statsId + ", skierId=" + this.skierId + ", dayNumber=" + this.dayNumber + ", numRides=" + this.numRides + ", totalVertical=" + this.totalVertical + "}";
     }
     
 }

@@ -8,12 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class Processor {
+public class ClientMetricsProcessor {
     
+    private final Long testWallTime;
     private final Long testStartTime;
     private final Collection<Long[]> requestAndResponseTimes;
 
-    public Processor(Long testStartTime, Collection<Long[]> requestAndResponseTimes) {
+    public ClientMetricsProcessor(Long testWallTime, Long testStartTime, Collection<Long[]> requestAndResponseTimes) {
+        this.testWallTime = testWallTime;
         this.testStartTime = testStartTime;
         this.requestAndResponseTimes = requestAndResponseTimes;
     }
@@ -25,7 +27,7 @@ public class Processor {
         // This is so that this list can be sorted separately to get median and percentiles easily.
         List<Long> latencies = new ArrayList<>();
         Long numResponsesSuccessful = new Long(0);
-        // Instantiate a new HashMap to track data needed to calculated average response times per second.
+        // Instantiate a new HashMap to track data needed to calculate average response times per second.
         // After processing, this map will have a key for each second of the total test wall time.
         // The value is an array of Long that contains the number of requests sent in that second,
         // and the sum of response times for each request sent in that second.
@@ -66,12 +68,14 @@ public class Processor {
         Long meanResponseTime = totalResponseTimeForAllRequests / latenciesArray.length;
         Long ninetyFifthPercentile = latenciesArray[((int) (latenciesArray.length * 0.95))];
         Long ninetyNinthPercentile = latenciesArray[((int) (latenciesArray.length * 0.99))];
+        Long throughput = numRequestsSent / (this.testWallTime / 1000);
         System.out.println("Mean response time: " + meanResponseTime.toString() + " milliseconds");
         System.out.println("Median response time: " + medianResponseTime.toString() + " milliseconds");
         System.out.println("95th percentile response time: " + ninetyFifthPercentile.toString() + " milliseconds");
         System.out.println("99th percentile response time: " + ninetyNinthPercentile.toString() + " milliseconds");
+        System.out.println("Throughput: " + throughput.toString() + " requests processed per second");
         // Instantiate a new XYLineChart and pass it the per second stats. Delegate the charting to this module.
-        XYLineChart chart = new XYLineChart(perSecondStats);
+        ClientXYLineChart chart = new ClientXYLineChart(perSecondStats);
         chart.chartLatencies();
     }
     

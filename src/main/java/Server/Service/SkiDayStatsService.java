@@ -2,6 +2,10 @@ package Server.Service;
 
 import Server.DAO.SkiDayStatsDAO;
 import Server.Model.SkiDayStats;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.util.EC2MetadataUtils;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -22,6 +26,8 @@ public class SkiDayStatsService {
     @Autowired
     private SkiDayStatsDAO skiDayStatsDAO;
     
+    private static final String QUEUEURL = "https://sqs.us-west-2.amazonaws.com/689430559734/DistributedSystems";
+    
     @GET
     @Path("/myVert/{skierId},{dayNumber}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -31,13 +37,26 @@ public class SkiDayStatsService {
         SkiDayStats skierStats = this.skiDayStatsDAO.getSkiDayStatsBySkierIdAndDay(skierId, dayNumber);
         Long dbResponseEndTime = System.currentTimeMillis();
         Long dbResponseTime = dbResponseEndTime - requestStartTime;
+        String instanceId = EC2MetadataUtils.getInstanceId();
         if(skierStats != null){
             Long successfulResponseEndTime = System.currentTimeMillis();
             Long successfulResponseTime = successfulResponseEndTime - requestStartTime;
+            AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+            SendMessageRequest send_msg_request = new SendMessageRequest()
+                .withQueueUrl(QUEUEURL)
+                .withMessageBody(instanceId + " " + requestStartTime.toString() + " " + dbResponseTime.toString() + " " 
+                        + requestStartTime.toString() + " " + successfulResponseTime.toString() + " 200");
+            sqs.sendMessage(send_msg_request);
             return Response.status(200).entity(skierStats).build();
         }else{
             Long failedResponseEndTime = System.currentTimeMillis();
             Long failedResponseTime = failedResponseEndTime - requestStartTime;
+            AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+            SendMessageRequest send_msg_request = new SendMessageRequest()
+                .withQueueUrl(QUEUEURL)
+                .withMessageBody(instanceId + " " + requestStartTime.toString() + " " + dbResponseTime.toString() + " " 
+                        + requestStartTime.toString() + " " + failedResponseTime.toString() + " 404");
+            sqs.sendMessage(send_msg_request);
             return Response.status(404).build();
         }
     }  
@@ -71,13 +90,26 @@ public class SkiDayStatsService {
         long newStatsId = this.skiDayStatsDAO.insertNewSkiDayStats(newStats);
         Long dbResponseEndTime = System.currentTimeMillis();
         Long dbResponseTime = dbResponseEndTime - dbRequestStartTime;
+        String instanceId = EC2MetadataUtils.getInstanceId();
         if(newStatsId != -1){
             Long successfulResponseEndTime = System.currentTimeMillis();
             Long successfulResponseTime = successfulResponseEndTime - requestStartTime;
+            AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+            SendMessageRequest send_msg_request = new SendMessageRequest()
+                .withQueueUrl(QUEUEURL)
+                .withMessageBody(instanceId + " " + dbRequestStartTime.toString() + " " + dbResponseTime.toString() + " " 
+                        + requestStartTime.toString() + " " + successfulResponseTime.toString() + " 201");
+            sqs.sendMessage(send_msg_request);
             return Response.status(201).entity(newStatsId).build();
         }else{
             Long failedResponseEndTime = System.currentTimeMillis();
             Long failedResponseTime = failedResponseEndTime - requestStartTime;
+            AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+            SendMessageRequest send_msg_request = new SendMessageRequest()
+                .withQueueUrl(QUEUEURL)
+                .withMessageBody(instanceId + " " + dbRequestStartTime.toString() + " " + dbResponseTime.toString() + " "
+                        + requestStartTime.toString() + " " + failedResponseTime.toString() + " 409");
+            sqs.sendMessage(send_msg_request);
             return Response.status(409).build();
         }
     }

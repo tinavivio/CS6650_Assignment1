@@ -97,6 +97,49 @@ public class JerseyClient {
         WebTarget resource = this.webTarget.path("lifts/count");
         return resource.request(MediaType.TEXT_PLAIN).get(responseType);
     }
+    
+    public Response postNewMetrics(String serverId, String databaseRequestTime, String databaseResponseTime, String serverRequestTime, String serverResponseTime, String responseCode) throws ClientErrorException {
+        return this.webTarget.path(MessageFormat.format("metrics/load/{0},{1},{2},{3},{4},{5}", new Object[]{serverId, databaseRequestTime, databaseResponseTime, serverRequestTime, serverResponseTime, responseCode})).request(MediaType.TEXT_PLAIN).post(null, Response.class);
+    }
+    
+    public <T> T getAllMetrics(Class<T> responseType) throws ClientErrorException {
+        WebTarget resource = this.webTarget.path("metrics");
+        return resource.request(MediaType.APPLICATION_JSON).get(responseType);
+    }
+    
+    public <T> T getMetricsByServerId(Class<T> responseType, String serverId) throws ClientErrorException {
+        WebTarget resource = this.webTarget.path(MessageFormat.format("metrics/{0}", new Object[]{serverId}));
+        return resource.request(MediaType.APPLICATION_JSON).get(responseType);
+    }
+    
+    public <T> T getNumMetrics(Class<T> responseType) throws ClientErrorException {
+        WebTarget resource = this.webTarget.path("metrics/count");
+        return resource.request(MediaType.TEXT_PLAIN).get(responseType);
+    }
+    
+    public <T> T getMinDatabaseRequestTime(Class<T> responseType) throws ClientErrorException {
+        WebTarget resource = this.webTarget.path("metrics/minDatabaseRequestTime");
+        return resource.request(MediaType.TEXT_PLAIN).get(responseType);
+    }
+    
+    public <T> T getMinServerRequestTime(Class<T> responseType) throws ClientErrorException {
+        WebTarget resource = this.webTarget.path("metrics/minServerRequestTime");
+        return resource.request(MediaType.TEXT_PLAIN).get(responseType);
+    }
+    
+    public <T> T getMinDatabaseRequestTimeByServerId(Class<T> responseType, String serverId) throws ClientErrorException {
+        WebTarget resource = this.webTarget.path(MessageFormat.format("metrics/minDatabaseRequestTime/{0}", new Object[]{serverId}));
+        return resource.request(MediaType.TEXT_PLAIN).get(responseType);
+    }
+    
+    public <T> T getMinServerRequestTimeByServerId(Class<T> responseType, String serverId) throws ClientErrorException {
+        WebTarget resource = this.webTarget.path(MessageFormat.format("metrics/minServerRequestTime/{0}", new Object[]{serverId}));
+        return resource.request(MediaType.TEXT_PLAIN).get(responseType);
+    }
+    
+    public Response deleteAllMetrics() throws ClientErrorException {
+        return this.webTarget.path("metrics/delete").request(MediaType.TEXT_PLAIN).delete(Response.class);
+    }
 
     public void close() {
         this.client.close();
