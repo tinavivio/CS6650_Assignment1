@@ -1,1 +1,5 @@
 target/
+BSDS*
+results/
+results-2/
+nb*

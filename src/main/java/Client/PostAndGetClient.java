@@ -39,35 +39,35 @@ public class PostAndGetClient {
                 System.err.println("Main thread interrupted!");
             }
             // Instantiate a new CountDownLatch with an initial count of 10,000 (based on the number of skiers).
-            CountDownLatch updateCountDownLatch = new CountDownLatch(10000);
+            //CountDownLatch updateCountDownLatch = new CountDownLatch(10000);
             // Instantiate an UpdateSkierStatsClient and call its updateClient method, passing it the day number,
             // CountDownLatch, and JerseyClient. 
             // This method does the work of updating all skiers' statistics for the given day in the database.
-            UpdateSkierStatsClient updateClient = new UpdateSkierStatsClient(i, updateCountDownLatch, client);
-            updateClient.updateSkierStats();
+            //UpdateSkierStatsClient updateClient = new UpdateSkierStatsClient(i, updateCountDownLatch, client);
+            //updateClient.updateSkierStats();
             // Wait for the CountDownLatch to reach zero before continuing in the program.
             // This implies that all of the 10,000 skiers' statistics have been updated and persisted to the database
             // (unless responses were unsuccessful).
-            try {
+            /*try {
                 updateCountDownLatch.await();
             } catch (InterruptedException ex) {
                 System.err.println("Main thread interrupted!");
-            }
+            }*/
             // Instantiate a new CountDownLatch with an initial count of 10,000 (based on the number of skiers).
-            CountDownLatch getCountDownLatch = new CountDownLatch(10000);
+            //CountDownLatch getCountDownLatch = new CountDownLatch(10000);
             // Instantiate a GetSkierDataClient and call its runClient method, passing it the JerseyClient, day number,
             // ConcurrentHashMap, and CountDownLatch. 
             // This method does the work of getting all skiers' statistics for the given day from the server.
-            GetSkierDataClient getClient = new GetSkierDataClient(client, i, metrics, getCountDownLatch);
-            getClient.runClient();
+            //GetSkierDataClient getClient = new GetSkierDataClient(client, i, metrics, getCountDownLatch);
+            //getClient.runClient();
             // Wait for the CountDownLatch to reach zero before continuing in the program.
             // This implies that all of the 10,000 skiers' statistics have been retrieved from the database
             // (unless responses were unsuccessful).
-            try {
+            /*try {
                 getCountDownLatch.await();
             } catch (InterruptedException ex) {
                 System.err.println("Main thread interrupted!");
-            }
+            }*/
         }
         // Close the JerseyClient and process the response time information that has been collected in the ConcurrentHashMap.
         client.close();
