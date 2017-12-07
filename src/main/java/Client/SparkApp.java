@@ -1,5 +1,6 @@
 package Client;
 
+import java.util.Properties;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -41,6 +42,12 @@ public class SparkApp {
         
         countsByLiftId.coalesce(1).write().format("json").save("./results");
         mostPopularLift.write().format("json").save("./results-2");
+        
+        Properties connectionProperties = new Properties();
+        connectionProperties.put("user", "tinavivio");
+        connectionProperties.put("password", "rahul2016");
+        connectionProperties.put("driver", "org.postgresql.Driver");
+        mostPopularLift.coalesce(1).write().jdbc(url, "results", connectionProperties);
         
         spark.stop();
         
