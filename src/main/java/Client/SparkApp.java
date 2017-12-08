@@ -1,5 +1,6 @@
 package Client;
 
+import java.util.Properties;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -48,6 +49,12 @@ public class SparkApp {
         totalHeightBySkierIdAndDayNumberAndLiftNumber.coalesce(1).write().format("json").save("./results-4");
         totalHeightBySkierIdAndDayNumber.coalesce(1).write().format("json").save("./results-5");
         mostProlificSkierByDay.coalesce(1).write().format("json").save("./results-6");
+        
+        Properties connectionProperties = new Properties();
+        connectionProperties.put("user", "tinavivio");
+        connectionProperties.put("password", "rahul2016");
+        connectionProperties.put("driver", "org.postgresql.Driver");
+        mostPopularLiftByDay.coalesce(1).write().jdbc(url, "results", connectionProperties);
         
         spark.stop();
         
