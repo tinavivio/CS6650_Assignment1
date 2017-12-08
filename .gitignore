@@ -1,5 +1,4 @@
-target/
+target
 BSDS*
-results/
-results-2/
+results*
 nb*
